@@ -479,6 +479,11 @@ def configure_timelapse(config=None, persist=False):
         settings().save()
 
 
+def clean_filename_gcode(filename):
+    chars = re.escape(r"!@#$%^&*()[]{};:,./<>?\|`~-=_+")
+    return re.sub(r"[" + chars + "]", "_", filename)
+
+
 class Timelapse:
     QUEUE_ENTRY_TYPE_CAPTURE = "capture"
     QUEUE_ENTRY_TYPE_CALLBACK = "callback"
@@ -603,8 +608,12 @@ class Timelapse:
         self._capture_success = 0
         self._in_timelapse = True
         self._gcode_file = os.path.basename(gcode_file)
+
+        gcode_filename_clean = os.path.splitext(self._gcode_file)[0].replace("%", "%%")
+        gcode_filename_cleaned = clean_filename_gcode(gcode_filename_clean)
+
         self._file_prefix = "{}_{}".format(
-            os.path.splitext(self._gcode_file)[0].replace("%", "%%"),
+            gcode_filename_cleaned,
             time.strftime("%Y%m%d%H%M%S"),
         )
 
@@ -948,9 +957,11 @@ class TimelapseRenderJob:
         on_fail=None,
         on_always=None,
     ):
+        self._prefix = clean_filename_gcode(prefix)
+
         self._capture_dir = capture_dir
         self._output_dir = output_dir
-        self._prefix = prefix
+
         self._postfix = postfix
         self._capture_glob = capture_glob
         self._capture_format = capture_format
