@@ -480,8 +480,11 @@ def configure_timelapse(config=None, persist=False):
 
 
 def clean_filename_gcode(filename):
-    chars = re.escape(r"!@#$%^&*()[]{};:,./<>?\|`~-=_+")
-    return re.sub(r"[" + chars + "]", "_", filename)
+    print("filename", filename)
+
+    result = filename.replace("%", "%%")
+    print("filename result", result)
+    return result
 
 
 class Timelapse:
@@ -609,8 +612,7 @@ class Timelapse:
         self._in_timelapse = True
         self._gcode_file = os.path.basename(gcode_file)
 
-        gcode_filename_clean = os.path.splitext(self._gcode_file)[0].replace("%", "%%")
-        gcode_filename_cleaned = clean_filename_gcode(gcode_filename_clean)
+        gcode_filename_cleaned = clean_filename_gcode(self._gcode_file)
 
         self._file_prefix = "{}_{}".format(
             gcode_filename_cleaned,
@@ -709,6 +711,10 @@ class Timelapse:
                 self._logger.warning("Cannot capture image, image number is unset")
                 return
 
+            print("file prefix", self._file_prefix)
+            print(
+                _capture_format.format(prefix=self._file_prefix) % self._image_number,
+            )
             filename = os.path.join(
                 self._capture_dir,
                 _capture_format.format(prefix=self._file_prefix) % self._image_number,
