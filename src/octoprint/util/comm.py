@@ -2730,6 +2730,11 @@ class MachineCom:
                                 self._logger.info(
                                     "Firmware states that it supports emergency GCODEs to be sent without waiting for an acknowledgement first"
                                 )
+                            elif capability == self.CAPABILITY_EXTENDED_M20 and enabled:
+                                self._logger.info(
+                                    "Firmware states that it support extended M20 to return long filename"
+                                )
+                                self.refreshSdFiles()
 
                         # notify plugins
                         for name, hook in self._firmware_info_hooks[
